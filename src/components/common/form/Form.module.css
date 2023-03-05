@@ -1,0 +1,36 @@
+.filter__container {
+    top: 110px;
+    position: sticky;
+    color:whitesmoke;
+    width: 310px;
+    margin:auto;
+}
+
+.filter__active{
+    cursor: pointer;
+    background-color: rgb(17,14,14);
+    transition: background-color 0.5s;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.filter__inactive{
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+
+.filter__active:hover{
+    background-color: rgba(17,14,14, 0.6);
+}
+
+.filter__form{
+    background-color: rgb(17,14,14);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap:25px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
