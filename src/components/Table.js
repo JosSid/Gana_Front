@@ -3,7 +3,12 @@ import Button from './common/button/Button';
 import { getContracts, putDeleteContract, deleteContract } from './service';
 import Input from './common/input/Input';
 
-const Table = ({ idContract, handleIdContract, formCreation, setFormCreation, active, setActive }) => {
+const Table = ({
+  idContract,
+  handleIdContract,
+  formCreation,
+  setFormCreation,
+}) => {
   const [contracts, setContracts] = useState([]);
   const [activeIdContract, setActiveIdContract] = useState(false);
   const [contract, setContract] = useState(null);
@@ -42,11 +47,10 @@ const Table = ({ idContract, handleIdContract, formCreation, setFormCreation, ac
     }
   };
 
-  const updateContract = () => {
+  const updateContract = (e) => {
     handleActiveIdContract();
     setFormCreation(false);
-    setActive(true);
-  }
+  };
 
   useEffect(() => {
     getListContracts();
@@ -133,6 +137,7 @@ const Table = ({ idContract, handleIdContract, formCreation, setFormCreation, ac
         <div
           key={contract._id}
           className='col-12 border-bottom border-dark align-items-center justify-content-center'
+          style={contract.deleted && { backgroundColor: 'red' }}
         >
           <div className='row'>
             <div className='col-3 pt-4 '>{contract._id}</div>
@@ -144,14 +149,7 @@ const Table = ({ idContract, handleIdContract, formCreation, setFormCreation, ac
                 className='btn btn-primary bg-dark w-100 mb-1'
                 onClick={handleActiveIdContract}
               >
-                {'Editar'}
-              </Button>
-              <Button
-                type='button'
-                className='btn btn-primary bg-dark  w-100'
-                onClick={handleActiveIdContract}
-              >
-                {'Borrar'}
+                {'Editar o Borrar'}
               </Button>
             </div>
           </div>

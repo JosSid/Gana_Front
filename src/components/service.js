@@ -4,6 +4,7 @@ const listContractsURL = '/listcontracts';
 const deleteContractURL = '/deletecontract';
 const addContractURL = '/addcontract';
 const getLocalidadURL = '/getlocalidad'
+const modifyContractURL = '/modifycontract'
 
 export const getContracts = async () => {
     const response = await client.get(listContractsURL);
@@ -26,7 +27,13 @@ export const createContract = async (body) => {
 export const putDeleteContract = async (id) => {
  const response = await client.put(`${deleteContractURL}/${id}`);
 
- return response
+ return response;
+};
+
+export const modifyContract = async (id, body) => {
+    const response = await client.put(`${modifyContractURL}/${id}`, body);
+
+    return response;
 };
 
 export const deleteContract = async (id) => {

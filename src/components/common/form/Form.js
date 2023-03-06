@@ -2,8 +2,12 @@ import { useState } from 'react';
 import Input from '../input/Input';
 import Button from '../button/Button';
 import InputSelect from '../select/Select';
-import { createContract, getLocalidad } from '../../service';
-import {validarCodigoPostal, validarDocumento, validarTelefono} from  './validations';
+import { createContract, getLocalidad, modifyContract } from '../../service';
+import {
+  validarCodigoPostal,
+  validarDocumento,
+  validarTelefono,
+} from './validations';
 
 export const initialState = {
   nombre: '',
@@ -22,6 +26,8 @@ const tipoDocumento = ['nif', 'cif', 'nie'];
 const Form = ({ idContract, formCreation, setFormCreation }) => {
   const [dataForm, setDataForm] = useState(initialState);
 
+  const [dataUpdate, setDataUpdate] = useState({})
+
   const [active, setActive] = useState(false);
 
   const [error, setError] = useState(null);
@@ -30,19 +36,28 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
 
   const handleDataForm = (event) => {
     resetError();
-    if(event.target.name === 'codigo_postal') {
-      if(event.target.value.length === 5 ){
-        setTimeout(async() => {
+    if (event.target.name === 'codigo_postal') {
+      if (event.target.value.length === 5) {
+        setTimeout(async () => {
           const localidad = await getLocalidad(event.target.value);
-          console.log(localidad)
-          if(localidad.length > 0){
-            setDataForm({ ...dataForm, codigo_postal: localidad[0].codigo_postal, municipio_nombre: localidad[0].municipio_nombre})
-          }    
-          return     
-        },100);
-      }  
+          if (localidad.length > 0) {
+            setDataForm({
+              ...dataForm,
+              codigo_postal: localidad[0].codigo_postal,
+              municipio_nombre: localidad[0].municipio_nombre,
+            });
+            setDataUpdate({
+              ...dataUpdate,
+              codigo_postal: localidad[0].codigo_postal,
+              municipio_nombre: localidad[0].municipio_nombre,
+            });
+          }
+          return;
+        }, 100);
+      }
     }
     setDataForm({ ...dataForm, [event.target.name]: event.target.value });
+    setDataUpdate({ ...dataUpdate, [event.target.name]: event.target.value });
   };
 
   const handleChangeSelect = (event) => {
@@ -56,7 +71,10 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
     }
 
     setDataForm({ ...dataForm, tipo_documento: event.target.value });
+    setDataUpdate({ ...dataUpdate, tipo_documento: event.target.value });
   };
+
+  const handleActive = () => setActive(!!!active);
 
   const handleActiveCreate = () => {
     setActive(!!!active);
@@ -70,17 +88,88 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
     const codigoPostal = validarCodigoPostal(dataForm.codigo_postal);
     const telefono = validarTelefono(dataForm.telefono);
 
-    if(documento && codigoPostal && telefono) {
+    if (
+      (dataForm.tipo_documento === 'nif' ||
+        dataForm.tipo_documento === 'nie') &&
+      !dataForm.apellido1.length
+    ) {
+      setError('El campo Apellido1 es obligatorio');
+      return;
+    }
+
+    if (documento && codigoPostal && telefono) {
       try {
         const newContract = await createContract(dataForm);
         console.log(newContract);
+        handleActive();
       } catch (error) {
         setError(error.data.msg);
       }
-    }else{
-      setError('Datos erroneos, por favor revisalos')
-    };
+    } else {
+      setError('Datos erroneos, por favor revisalos');
+    }
   };
+
+  const handleUpdateSubmit = async (event) => {
+    event.preventDefault();
+    resetError();
+
+    let bodyUpdate = {}
+
+    if(dataUpdate.nombre) {
+      bodyUpdate.nombre = dataUpdate.nombre
+    };
+
+    if(dataUpdate.apellido1) {
+      bodyUpdate.apellido1 = dataUpdate.apellido1
+    };
+    console.log(bodyUpdate)
+    console.log(idContract)
+    if(dataUpdate.apellido2) {
+      bodyUpdate.apellido2 = dataUpdate.apellido2
+    };
+
+    if(dataUpdate.tipo_documento) {
+      bodyUpdate.tipo_documento = dataUpdate.tipo_documento
+    };
+
+    if(dataUpdate.documento) {
+      const documento = validarDocumento(dataForm.documento);
+      if(documento) {
+        bodyUpdate.documento = dataUpdate.documento;
+      };
+    };
+
+    if(dataUpdate.codigo_postal) {
+      const codigoPostal = validarDocumento(dataForm.codigo_postal);
+      if(codigoPostal) {
+        bodyUpdate.codigo_postal = dataUpdate.codigo_postal;
+      };
+    };
+
+    if(dataUpdate.direccion){
+      bodyUpdate.direccion = dataUpdate.direccion
+    }
+
+    if(dataUpdate.municipio_nombre){
+      bodyUpdate.municipio_nombre = dataUpdate.municipio_nombre
+    }
+
+    if(dataUpdate.telefono) {
+      const telefono = validarTelefono(dataForm.telefono);
+      if(telefono) {
+        bodyUpdate.telefono = dataUpdate.telefono;
+      };
+    };
+
+    try {
+        const updatedContract = await modifyContract(idContract, bodyUpdate)
+    } catch (error) {
+      console.log(error);
+    };
+
+  };
+
 
   return (
     <div className='row my-1'>
@@ -105,7 +194,6 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
               label='nombre'
               onChange={handleDataForm}
               value={dataForm.nombre}
-              required={formCreation}
             />
             <Input
               className='col-sm-12 mb-5 text-center'
@@ -176,13 +264,21 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
             />
           </div>
           {error && <p style={{ color: 'red' }}>{error}</p>}
-          <Button
+          {formCreation ? (<Button
             type='submit'
             className='btn btn-secondary mx-3'
             onClick={handleSubmit}
           >
-            Click para Crear o Modificar contrato
+            Click para Crear contrato
+          </Button>) : (
+            <Button
+            type='submit'
+            className='btn btn-secondary mx-3'
+            onClick={handleUpdateSubmit}
+          >
+            Click para Modificar contrato
           </Button>
+          )}
         </form>
       )}
     </div>
