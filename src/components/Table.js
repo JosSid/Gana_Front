@@ -7,7 +7,8 @@ const Table = ({
   idContract,
   handleIdContract,
   setFormCreation,
-  setActive
+  setActive,
+  active
 }) => {
   const [contracts, setContracts] = useState([]);
   const [activeIdContract, setActiveIdContract] = useState(false);
@@ -35,6 +36,7 @@ const Table = ({
       setTimeout(() => {
         setContract(null);
         setActiveIdContract(false);
+        getListContracts();
       }, 1500);
     } catch (error) {
       setError('Error,no se ha podido realizar la acción');
@@ -65,7 +67,7 @@ const Table = ({
 
   useEffect(() => {
     getListContracts();
-  }, []);
+  }, [active]);
 
   return (
     <div className='row'>
@@ -106,7 +108,7 @@ const Table = ({
         >
           {error && <p style={{ color: 'red' }}>{error}</p>}
           {contract && (
-            <div className='mt-2'>{`Operación realizada satisfactoriamente en el contrato ${contract._id}`}</div>
+            <div className='mt-2'>Operación realizada satisfactoriamente</div>
           )}
           <div className='row' onClick={resetError}>
             <Input

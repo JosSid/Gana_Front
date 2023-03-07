@@ -1,3 +1,59 @@
+# GANA FRONT
+
+Este proyecto se apoya en el backend del repositorio Gana, el cual puedes descargarte en este enlace : [https://github.com/JosSid/Gana](https://github.com/JosSid/Gana).
+
+El proyecto esta desarrollado en React.
+
+Una vez tengas descargado el proyecto en tu ordenador deberas crear en la carpeta raiz un fichero **.env** y copiar en el el contenido del fichero **.env.example** donde esta la URL de conexion al api.
+
+A continuacion deberas instalarte las dependencias de la aplicación, para ello desde la carpeta raiz ejecutaras el siguiente comando en la consola:
+
+```
+npm install
+```
+
+A continuación puedes ver las opciones para arrancar el proyecto.
+
+Para arrancar el proyecto en modo development:
+
+```
+npm start
+```
+
+## Interface
+
+Al abrir la pagina debera verse una tabla como la siguiente.
+
+Los contratos con fondo rojo han sido marcados para borrarlos despues.
+
+En la parte superior puede hacer click y se desplegara un formulario para registrar un nuevo contrato.
+
+![](/public/img/tabla.png)
+
+Para editar un contrato, marcarlo para borrarlo o borrarlo definitivamente de la base de datos debera pulsar el boton de acciones Editar o Borrar.
+
+Esto abrirá un panel como el siguiente:
+
+![](/public/img/panelid.png)
+
+En el panel debera intruducir el ID del contrato a modificar y a continuación elegir la acción que desee :
+
+1-En caso de pulsar **editar** se desplegara un formulario donde deberá rellenar el campo que desee modificar. 
+
+2-Si desea **marcar un contrato para borrarlo despues** solamente debera pulsar en esa opción asegurandose de que el id introducido es correwcto.
+
+3-Si un contrato esta marcado para borrar y desea desmarcarlo puede hacerlo desde el formulario de edicion mandando la petición sin rellenar ningún campo, esto desmarcara de nuevo el contrato.
+
+4-Si desea borrarlo definitívamente asegurese de introducir el id correcto y pulse **Borrar**. Esta acción elimina el contrato de la base de datos.
+
+El formulario de registro se vera asi:
+
+![](/public/img/formulario.png)
+
+El formulario de modificación se vera asi:
+
+![](/public/img/formularioUp.png)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

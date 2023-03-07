@@ -23,10 +23,18 @@ export const initialState = {
 
 const tipoDocumento = ['nif', 'cif', 'nie'];
 
-const Form = ({ idContract, formCreation, setFormCreation, active, setActive }) => {
+const Form = ({
+  idContract,
+  formCreation,
+  setFormCreation,
+  active,
+  setActive,
+}) => {
   const [dataForm, setDataForm] = useState(initialState);
 
   const [dataUpdate, setDataUpdate] = useState({});
+
+  const [contract, setContract] = useState(null);
 
   const [error, setError] = useState(null);
 
@@ -71,9 +79,8 @@ const Form = ({ idContract, formCreation, setFormCreation, active, setActive }) 
     setDataUpdate({ ...dataUpdate, tipo_documento: event.target.value });
   };
 
-  const handleActive = () => setActive(!!!active);
-
   const handleActiveCreate = () => {
+    resetError();
     setActive(!!!active);
     setFormCreation(true);
   };
@@ -97,8 +104,12 @@ const Form = ({ idContract, formCreation, setFormCreation, active, setActive }) 
     if (documento && codigoPostal && telefono) {
       try {
         const newContract = await createContract(dataForm);
-        console.log(newContract);
-        handleActive();
+        setContract(newContract);
+        setTimeout(() => {
+          setContract(null);
+          setActive(false);
+          setDataForm(initialState);
+        }, 1500);
       } catch (error) {
         setError('Error al crear contrato');
       }
@@ -111,67 +122,73 @@ const Form = ({ idContract, formCreation, setFormCreation, active, setActive }) 
     event.preventDefault();
     resetError();
 
-    let bodyUpdate = {}
+    let bodyUpdate = {};
 
-    if(dataUpdate.nombre) {
-      bodyUpdate.nombre = dataUpdate.nombre
-    };
+    if (dataUpdate.nombre) {
+      bodyUpdate.nombre = dataUpdate.nombre;
+    }
 
-    if(dataUpdate.apellido1) {
-      bodyUpdate.apellido1 = dataUpdate.apellido1
-    };
+    if (dataUpdate.apellido1) {
+      bodyUpdate.apellido1 = dataUpdate.apellido1;
+    }
 
-    if(dataUpdate.apellido2) {
-      bodyUpdate.apellido2 = dataUpdate.apellido2
-    };
+    if (dataUpdate.apellido2) {
+      bodyUpdate.apellido2 = dataUpdate.apellido2;
+    }
 
-    if(dataUpdate.tipo_documento) {
-      bodyUpdate.tipo_documento = dataUpdate.tipo_documento
-    };
+    if (dataUpdate.tipo_documento) {
+      bodyUpdate.tipo_documento = dataUpdate.tipo_documento;
+    }
 
-    if(dataUpdate.documento) {
-      const documento = validarDocumento(dataForm.documento);
-      if(documento) {
+    if (dataUpdate.documento) {
+      const documento = validarDocumento(dataUpdate.documento);
+      if (documento) {
         bodyUpdate.documento = dataUpdate.documento;
-      }else{
+      } else {
         setError('Documento incorrecto');
-      };
-    };
-
-    if(dataUpdate.codigo_postal) {
-      const codigoPostal = validarDocumento(dataForm.codigo_postal);
-      if(codigoPostal) {
-        bodyUpdate.codigo_postal = dataUpdate.codigo_postal;
-      }else{
-        setError('Código postal incorrecto');
-      };
-    };
-
-    if(dataUpdate.direccion){
-      bodyUpdate.direccion = dataUpdate.direccion
-    }
-
-    if(dataUpdate.municipio_nombre){
-      bodyUpdate.municipio_nombre = dataUpdate.municipio_nombre
-    }
-
-    if(dataUpdate.telefono) {
-      const telefono = validarTelefono(dataForm.telefono);
-      if(telefono) {
-        bodyUpdate.telefono = dataUpdate.telefono;
-      }else{
-        setError('Telefono incorrecto')
+        return;
       }
-    };
+    }
+
+    if (dataUpdate.codigo_postal) {
+      const codigoPostal = validarDocumento(dataUpdate.codigo_postal);
+      if (codigoPostal) {
+        bodyUpdate.codigo_postal = dataUpdate.codigo_postal;
+      } else {
+        setError('Código postal incorrecto');
+        return;
+      }
+    }
+
+    if (dataUpdate.direccion) {
+      bodyUpdate.direccion = dataUpdate.direccion;
+    }
+
+    if (dataUpdate.municipio_nombre) {
+      bodyUpdate.municipio_nombre = dataUpdate.municipio_nombre;
+    }
+
+    if (dataUpdate.telefono) {
+      const telefono = validarTelefono(dataUpdate.telefono);
+      if (telefono) {
+        bodyUpdate.telefono = dataUpdate.telefono;
+      } else {
+        setError('Telefono incorrecto');
+        return;
+      }
+    }
 
     try {
-        const updatedContract = await modifyContract(idContract, bodyUpdate);
-        console.log(updatedContract)
+      const updatedContract = await modifyContract(idContract, bodyUpdate);
+      setContract(updatedContract);
+      setTimeout(() => {
+        setContract(null);
         setActive(false);
+        setDataUpdate({});
+      }, 1500);
     } catch (error) {
       setError('Error al modificar contrato');
-    };
-
+    }
   };
 
   return (
@@ -197,15 +214,19 @@ const Form = ({ idContract, formCreation, setFormCreation, active, setActive }) 
               name='nombre'
               label={formCreation ? 'nombre *requerido' : 'nombre'}
               onChange={handleDataForm}
-              value={dataForm.nombre}
+              value={formCreation ? dataForm.nombre : dataUpdate.nombre}
             />
             <Input
               className='col-sm-12 mb-5 text-center'
               type='text'
               name='apellido1'
-              label={dataForm.tipo_documento !== 'cif' && formCreation ? '1º Apellido *requerido' : '1º Apellido'}
+              label={
+                dataForm.tipo_documento !== 'cif' && formCreation
+                  ? '1º Apellido *requerido'
+                  : '1º Apellido'
+              }
               onChange={handleDataForm}
-              value={dataForm.apellido1}
+              value={formCreation ? dataForm.apellido1 : dataUpdate.apellido1}
             />
             <Input
               className='col-sm-12 mb-5 text-center'
@@ -213,15 +234,16 @@ const Form = ({ idContract, formCreation, setFormCreation, active, setActive }) 
               name='apellido2'
               label='2º Apellido'
               onChange={handleDataForm}
-              value={dataForm.apellido2}
+              value={formCreation ? dataForm.apellido2 : dataUpdate.apellido2}
             />
             <InputSelect
               className='col-md-6 col-lg-6 mb-5 '
               required
+              name='tipo_documento'
               label='Tipo de documento'
               optionarray={tipoDocumento}
               onChange={handleChangeSelect}
-              value={dataForm.tipo_documento}
+              value={formCreation ? dataForm.tipo_documento : dataUpdate.tipo_documento}
             />
             <Input
               className='col-sm-12 mb-5 text-center'
@@ -229,7 +251,7 @@ const Form = ({ idContract, formCreation, setFormCreation, active, setActive }) 
               name='documento'
               label={formCreation ? 'NIF/CIF/NIE *requerido' : 'NIF/CIF/NIE'}
               onChange={handleDataForm}
-              value={dataForm.documento}
+              value={formCreation ? dataForm.documento : dataUpdate.documento}
             />
           </div>
           <div className='col-sm-12 col-md-6 p-5 text-center'>
@@ -238,9 +260,11 @@ const Form = ({ idContract, formCreation, setFormCreation, active, setActive }) 
               className='col-sm-12 mb-5 text-center'
               type='text'
               name='codigo_postal'
-              label={formCreation ? 'Código Postal *requerido' : 'Código Postal'}
+              label={
+                formCreation ? 'Código Postal *requerido' : 'Código Postal'
+              }
               onChange={handleDataForm}
-              value={dataForm.codigo_postal}
+              value={formCreation ? dataForm.codigo_postal : dataUpdate.codigo_postal}
             />
             <Input
               className='col-sm-12 mb-5 text-center'
@@ -248,7 +272,7 @@ const Form = ({ idContract, formCreation, setFormCreation, active, setActive }) 
               name='direccion'
               label='Dirección'
               onChange={handleDataForm}
-              value={dataForm.direccion}
+              value={formCreation ? dataForm.direccion : dataUpdate.direccion}
             />
             <Input
               className='col-sm-12 mb-5 text-center'
@@ -256,7 +280,7 @@ const Form = ({ idContract, formCreation, setFormCreation, active, setActive }) 
               name='municipio_nombre'
               label='Localidad'
               onChange={handleDataForm}
-              value={dataForm.municipio_nombre}
+              value={formCreation ? dataForm.municipio_nombre : dataUpdate.municipio_nombre}
             />
             <Input
               className='col-sm-12 mb-5 text-center'
@@ -264,24 +288,29 @@ const Form = ({ idContract, formCreation, setFormCreation, active, setActive }) 
               name='telefono'
               label={formCreation ? 'Teléfono *requerido' : 'Teléfono'}
               onChange={handleDataForm}
-              value={dataForm.telefono}
+              value={formCreation ? dataForm.telefono : dataUpdate.telefono}
             />
           </div>
+          {contract && (
+            <div className='mt-2'>Operación realizada satisfactoriamente</div>
+          )}
           {error && <p style={{ color: 'red' }}>{error}</p>}
-          {formCreation ? (<Button
-            type='submit'
-            className='btn btn-secondary mx-3'
-            onClick={handleSubmit}
-          >
-            Click para Crear contrato
-          </Button>) : (
+          {formCreation ? (
             <Button
-            type='submit'
-            className='btn btn-secondary mx-3'
-            onClick={handleUpdateSubmit}
-          >
-            Click para Modificar contrato
-          </Button>
+              type='submit'
+              className='btn btn-secondary mx-3'
+              onClick={handleSubmit}
+            >
+              Click para Crear contrato
+            </Button>
+          ) : (
+            <Button
+              type='submit'
+              className='btn btn-secondary mx-3'
+              onClick={handleUpdateSubmit}
+            >
+              Click para Modificar contrato
+            </Button>
           )}
         </form>
       )}
