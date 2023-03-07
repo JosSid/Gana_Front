@@ -6,21 +6,29 @@ import Input from './common/input/Input';
 const Table = ({
   idContract,
   handleIdContract,
-  formCreation,
   setFormCreation,
+  setActive
 }) => {
   const [contracts, setContracts] = useState([]);
   const [activeIdContract, setActiveIdContract] = useState(false);
   const [contract, setContract] = useState(null);
+  const [error, setError] = useState(null);
+
+  const resetError = () => setError(null);
 
   const handleActiveIdContract = () => setActiveIdContract(!activeIdContract);
 
   const getListContracts = async () => {
-    const listContracts = await getContracts();
+    try {
+      const listContracts = await getContracts();
     setContracts(listContracts.response);
+    } catch (error) {
+      setError('Error al cargar los contratos');
+    };
   };
 
   const stampContract = async () => {
+    resetError();
     try {
       const stampContract = await putDeleteContract(idContract);
       setContract(stampContract);
@@ -29,11 +37,12 @@ const Table = ({
         setActiveIdContract(false);
       }, 1500);
     } catch (error) {
-      console.log(error);
+      setError('Error,no se ha podido realizar la acción');
     }
   };
 
   const deleteContractDB = async () => {
+    resetError();
     try {
       const deletedContract = await deleteContract(idContract);
       setContract(deletedContract);
@@ -43,13 +52,15 @@ const Table = ({
         getListContracts();
       }, 1500);
     } catch (error) {
-      console.log(error);
+      setError('Error,no se ha podido realizar la acción');
     }
   };
 
   const updateContract = (e) => {
+    resetError();
     handleActiveIdContract();
     setFormCreation(false);
+    setActive(true)
   };
 
   useEffect(() => {
@@ -72,8 +83,15 @@ const Table = ({
           <div className='col-3 p-2'>ID</div>
           <div className='col-3 p-2'>NOMBRE</div>
           <div className='col-3 p-2'>DOCUMENTO</div>
-          <div className='col-3 p-2'>ACCIONES</div>
-        </div>
+          <div className='col-2 p-2'>ACCIONES</div>
+          <Button
+                type='button'
+                className='btn col-1 btn-primary bg-dark'
+                onClick={getListContracts}
+              >
+                <i className="bi bi-arrow-clockwise"></i>
+              </Button>
+        </div>    
       </div>
       {activeIdContract && (
         <div
@@ -86,15 +104,16 @@ const Table = ({
             zIndex: '5',
           }}
         >
+          {error && <p style={{ color: 'red' }}>{error}</p>}
           {contract && (
             <div className='mt-2'>{`Operación realizada satisfactoriamente en el contrato ${contract._id}`}</div>
           )}
-          <div className='row'>
+          <div className='row' onClick={resetError}>
             <Input
               className='col-sm-12 w-50 mx-auto mb-5 pt-3'
               type='text'
               name='_id'
-              label='ID del contrato a modificar'
+              label='Introduzca el ID del contrato a modificar'
               onChange={handleIdContract}
               value={idContract}
             />

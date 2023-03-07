@@ -23,12 +23,10 @@ export const initialState = {
 
 const tipoDocumento = ['nif', 'cif', 'nie'];
 
-const Form = ({ idContract, formCreation, setFormCreation }) => {
+const Form = ({ idContract, formCreation, setFormCreation, active, setActive }) => {
   const [dataForm, setDataForm] = useState(initialState);
 
-  const [dataUpdate, setDataUpdate] = useState({})
-
-  const [active, setActive] = useState(false);
+  const [dataUpdate, setDataUpdate] = useState({});
 
   const [error, setError] = useState(null);
 
@@ -69,7 +67,6 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
         values.push(options[i].value.toString());
       }
     }
-
     setDataForm({ ...dataForm, tipo_documento: event.target.value });
     setDataUpdate({ ...dataUpdate, tipo_documento: event.target.value });
   };
@@ -103,7 +100,7 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
         console.log(newContract);
         handleActive();
       } catch (error) {
-        setError(error.data.msg);
+        setError('Error al crear contrato');
       }
     } else {
       setError('Datos erroneos, por favor revisalos');
@@ -123,8 +120,7 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
     if(dataUpdate.apellido1) {
       bodyUpdate.apellido1 = dataUpdate.apellido1
     };
-    console.log(bodyUpdate)
-    console.log(idContract)
+
     if(dataUpdate.apellido2) {
       bodyUpdate.apellido2 = dataUpdate.apellido2
     };
@@ -137,6 +133,8 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
       const documento = validarDocumento(dataForm.documento);
       if(documento) {
         bodyUpdate.documento = dataUpdate.documento;
+      }else{
+        setError('Documento incorrecto');
       };
     };
 
@@ -144,6 +142,8 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
       const codigoPostal = validarDocumento(dataForm.codigo_postal);
       if(codigoPostal) {
         bodyUpdate.codigo_postal = dataUpdate.codigo_postal;
+      }else{
+        setError('Código postal incorrecto');
       };
     };
 
@@ -159,17 +159,20 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
       const telefono = validarTelefono(dataForm.telefono);
       if(telefono) {
         bodyUpdate.telefono = dataUpdate.telefono;
-      };
+      }else{
+        setError('Telefono incorrecto')
+      }
     };
 
     try {
-        const updatedContract = await modifyContract(idContract, bodyUpdate)
+        const updatedContract = await modifyContract(idContract, bodyUpdate);
+        console.log(updatedContract)
+        setActive(false);
     } catch (error) {
-      console.log(error);
+      setError('Error al modificar contrato');
     };
 
   };
-
 
   return (
     <div className='row my-1'>
@@ -184,6 +187,7 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
         <form
           className='row p-5 d-flex justify-content-center m-1 rounded-25 bg-dark'
           style={{ color: 'whitesmoke' }}
+          onClick={resetError}
         >
           <div className='col-sm-12 col-md-6 p-5 text-center'>
             <h2>Datos personales</h2>
@@ -191,7 +195,7 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
               className='col-sm-12 mb-5 text-center'
               type='text'
               name='nombre'
-              label='nombre'
+              label={formCreation ? 'nombre *requerido' : 'nombre'}
               onChange={handleDataForm}
               value={dataForm.nombre}
             />
@@ -199,7 +203,7 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
               className='col-sm-12 mb-5 text-center'
               type='text'
               name='apellido1'
-              label='1º Apellido'
+              label={dataForm.tipo_documento !== 'cif' && formCreation ? '1º Apellido *requerido' : '1º Apellido'}
               onChange={handleDataForm}
               value={dataForm.apellido1}
             />
@@ -223,7 +227,7 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
               className='col-sm-12 mb-5 text-center'
               type='text'
               name='documento'
-              label='NIF/CIF/NIE'
+              label={formCreation ? 'NIF/CIF/NIE *requerido' : 'NIF/CIF/NIE'}
               onChange={handleDataForm}
               value={dataForm.documento}
             />
@@ -234,7 +238,7 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
               className='col-sm-12 mb-5 text-center'
               type='text'
               name='codigo_postal'
-              label='Código Postal'
+              label={formCreation ? 'Código Postal *requerido' : 'Código Postal'}
               onChange={handleDataForm}
               value={dataForm.codigo_postal}
             />
@@ -258,7 +262,7 @@ const Form = ({ idContract, formCreation, setFormCreation }) => {
               className='col-sm-12 mb-5 text-center'
               type='number'
               name='telefono'
-              label='Teléfono'
+              label={formCreation ? 'Teléfono *requerido' : 'Teléfono'}
               onChange={handleDataForm}
               value={dataForm.telefono}
             />
