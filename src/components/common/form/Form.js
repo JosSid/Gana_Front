@@ -47,12 +47,12 @@ const Form = ({
         setTimeout(async () => {
           const localidad = await getLocalidad(event.target.value);
           if (localidad.length > 0) {
-            setDataForm({
+            formCreation && setDataForm({
               ...dataForm,
               codigo_postal: localidad[0].codigo_postal,
               municipio_nombre: localidad[0].municipio_nombre,
             });
-            setDataUpdate({
+            !formCreation && setDataUpdate({
               ...dataUpdate,
               codigo_postal: localidad[0].codigo_postal,
               municipio_nombre: localidad[0].municipio_nombre,
@@ -62,8 +62,8 @@ const Form = ({
         }, 100);
       }
     }
-    setDataForm({ ...dataForm, [event.target.name]: event.target.value });
-    setDataUpdate({ ...dataUpdate, [event.target.name]: event.target.value });
+    formCreation && setDataForm({ ...dataForm, [event.target.name]: event.target.value });
+    !formCreation && setDataUpdate({ ...dataUpdate, [event.target.name]: event.target.value });
   };
 
   const handleChangeSelect = (event) => {
@@ -75,8 +75,8 @@ const Form = ({
         values.push(options[i].value.toString());
       }
     }
-    setDataForm({ ...dataForm, tipo_documento: event.target.value });
-    setDataUpdate({ ...dataUpdate, tipo_documento: event.target.value });
+    formCreation && setDataForm({ ...dataForm, tipo_documento: event.target.value });
+    !formCreation && setDataUpdate({ ...dataUpdate, tipo_documento: event.target.value });
   };
 
   const handleActiveCreate = () => {
