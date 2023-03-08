@@ -204,7 +204,7 @@ const Form = ({
         <form
           className='row p-5 d-flex justify-content-center m-1 rounded-25 bg-dark'
           style={{ color: 'whitesmoke' }}
-          onClick={resetError}
+          onSubmit={resetError}
         >
           <div className='col-sm-12 col-md-6 p-5 text-center'>
             <h2>Datos personales</h2>
@@ -294,7 +294,7 @@ const Form = ({
           {contract && (
             <div className='mt-2'>Operación realizada satisfactoriamente</div>
           )}
-          {error && <p style={{ color: 'red' }}>{error}</p>}
+          {error && (<p style={{ color: 'red' }}>{error}</p>)}
           {formCreation ? (
             <Button
               type='submit'
